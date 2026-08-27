@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" fill="none">
+  <rect width="800" height="420" fill="#0f0f1b"/>
+  <rect width="800" height="420" fill="url(#ocean)" opacity="0.6"/>
+  <defs>
+    <linearGradient id="ocean" x1="0" y1="0" x2="800" y2="420">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0f1525"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Am�rica del Sur -->
+  <path fill="#252540" stroke="#3a3a58" stroke-width="1.2"
+    d="M120,120 Q140,80 180,95 Q220,70 250,110 Q280,140 270,200 Q260,260 230,300 Q200,340 170,320 Q130,290 115,250 Q100,200 120,120Z"/>
+  <!-- Europa -->
+  <path fill="#252540" stroke="#3a3a58" stroke-width="1.2"
+    d="M430,70 Q480,55 520,75 Q560,90 570,120 Q580,150 560,170 Q530,185 500,175 Q460,160 440,130 Q420,100 430,70Z"/>
+  <!-- �frica (sutil) -->
+  <path fill="#1e1e34" stroke="#333350" stroke-width="1"
+    d="M460,180 Q500,170 520,210 Q530,260 500,300 Q470,320 450,280 Q440,230 460,180Z"/>
+  <!-- Arco Lima � Gotemburgo -->
+  <path id="ruta" d="M195,265 Q400,80 535,115" stroke="#ff4d8d" stroke-width="2.5"
+    stroke-dasharray="10 8" fill="none" opacity="0.75" filter="url(#glow)"/>
+  <!-- Puntos de referencia -->
+  <circle cx="195" cy="265" r="5" fill="#ff4d8d" opacity="0.9"/>
+  <circle cx="535" cy="115" r="5" fill="#ff4d8d" opacity="0.9"/>
+</svg>

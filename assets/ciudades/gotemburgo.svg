@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="gote" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b9fff"/>
+      <stop offset="50%" stop-color="#3d5a80"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#gote)"/>
+  <circle cx="80" cy="100" r="30" fill="#fff" opacity="0.15"/>
+  <circle cx="120" cy="70" r="20" fill="#fff" opacity="0.1"/>
+  <path fill="#0f0f1b" opacity="0.45" d="M0,300 Q150,260 250,290 Q350,320 400,280 L400,400 L0,400Z"/>
+  <rect x="60" y="220" width="80" height="60" rx="4" fill="#2a2a40" opacity="0.8"/>
+  <rect x="160" y="200" width="60" height="80" rx="4" fill="#2a2a40" opacity="0.7"/>
+  <text x="200" y="340" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="34" font-weight="700"><�<� Gotemburgo</text>
+  <text x="200" y="375" text-anchor="middle" fill="#a8c8ff" font-family="system-ui,sans-serif" font-size="18">Suecia</text>
+</svg>

@@ -1,0 +1,19 @@
+{
+  "name": "Unidos",
+  "short_name": "Unidos",
+  "description": "Fotos, videos, pensamientos y plan — todo junto para la pareja",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0F0F1B",
+  "theme_color": "#0F0F1B",
+  "orientation": "portrait",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

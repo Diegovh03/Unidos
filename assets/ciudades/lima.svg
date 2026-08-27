@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="lima" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b9d"/>
+      <stop offset="50%" stop-color="#c44569"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#lima)"/>
+  <circle cx="320" cy="80" r="50" fill="#ffd166" opacity="0.9"/>
+  <path fill="#0f0f1b" opacity="0.5" d="M0,280 Q100,240 200,260 Q300,280 400,250 L400,400 L0,400Z"/>
+  <text x="200" y="340" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="42" font-weight="700"><�<� Lima</text>
+  <text x="200" y="375" text-anchor="middle" fill="#ffb3cc" font-family="system-ui,sans-serif" font-size="18">Per�</text>
+</svg>
