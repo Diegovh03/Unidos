@@ -8,6 +8,7 @@ import { renderNosotros, startNosotrosPoll, stopNosotrosPoll } from "./nosotros.
 import { getFraseDelDia } from "./frases.js";
 import { getNextEvent } from "./plan.js";
 import { pageEnter, bindRipples } from "./motion.js";
+import { needsOnboarding, onboardingHtml, bindOnboarding } from "./onboarding.js";
 
 let pollTimer = null;
 
@@ -86,7 +87,7 @@ async function setupNotifications() {
     const frase = getFraseDelDia(new Date(), getNextEvent(new Date()));
     reg.showNotification("Para ti 💕", {
       body: `"${frase.texto}" — ${frase.autor}`,
-      icon: "./icons/icon.svg",
+      icon: "./icons/icon-192.png",
     });
     if (status) {
       status.hidden = false;
@@ -109,5 +110,11 @@ if ("serviceWorker" in navigator) {
 
 initFrases().then(() => {
   ensureCiudadViewer();
-  navigate("home");
+  const start = () => navigate("home");
+  if (needsOnboarding()) {
+    document.body.insertAdjacentHTML("beforeend", onboardingHtml());
+    bindOnboarding(start);
+  } else {
+    start();
+  }
 });

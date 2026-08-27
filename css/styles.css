@@ -2795,6 +2795,162 @@ body.page-home .page-content {
   box-shadow: 0 8px 28px rgba(255, 77, 141, 0.08);
 }
 
+/* ── Onboarding / instalar / perfil ── */
+body.onboarding .bottom-nav,
+body.onboarding .app-shell {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.onboard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 15, 27, 0.96);
+}
+
+.onboard-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 77, 141, 0.28);
+  border-radius: 24px;
+  padding: 1.6rem 1.35rem 1.4rem;
+  box-shadow: 0 18px 48px rgba(255, 77, 141, 0.16);
+  text-align: center;
+}
+
+.onboard-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pink-soft);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.onboard-card h2 {
+  font-size: 1.45rem;
+  margin-bottom: 0.5rem;
+}
+
+.onboard-lead,
+.onboard-q {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 1.1rem;
+}
+
+.onboard-q {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.onboard-yo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.onboard-steps {
+  text-align: left;
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.onboard-url {
+  font-size: 0.75rem;
+  color: var(--pink-soft);
+  margin-bottom: 1rem;
+}
+
+.install-banner {
+  background: rgba(255, 77, 141, 0.12);
+  border: 1px solid rgba(255, 77, 141, 0.28);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.install-banner p { margin: 0 0 0.55rem; }
+
+.install-dismiss {
+  border: none;
+  background: none;
+  color: var(--pink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.perfil-hero {
+  text-align: center;
+  padding: 0.15rem 0 1.15rem;
+}
+
+.perfil-photos {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 0.85rem;
+}
+
+.perfil-photos img {
+  width: 86px;
+  height: 86px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 77, 141, 0.5);
+  box-shadow: 0 8px 24px rgba(255, 77, 141, 0.22);
+}
+
+.perfil-hero h2 {
+  font-size: 1.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.perfil-hero p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.perfil-url {
+  color: var(--pink-soft) !important;
+  margin-top: 0.4rem;
+  font-weight: 600;
+}
+
+.perfil-install {
+  margin-top: 0.2rem;
+  font-size: 0.72rem !important;
+}
+
+.date-del {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

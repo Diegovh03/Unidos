@@ -29,6 +29,7 @@ export function addUserDate({ titulo, fecha, hora, quien, notas }) {
     hora: hora || "",
     quien: quien || "ambos",
     notas: notas || "",
+    done: false,
     created: new Date().toISOString(),
   };
   items.push(item);

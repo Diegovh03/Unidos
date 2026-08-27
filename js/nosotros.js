@@ -1,5 +1,8 @@
+import { FOTO_BIANKA, FOTO_DIEGO } from "./lugares.js";
+import { getDaysTogether } from "./plan.js";
+import { getYo, setYo, clearYo } from "./cloud.js";
+
 const STORAGE_KEY = "nuestro-plan-notas";
-const YO_KEY = "nuestro-plan-yo";
 
 const DEFAULT_NOTAS = {
   diego: { gustos: "", pensamientos: "", updatedAt: null },
@@ -11,7 +14,7 @@ const PERSONAS = {
   bianka: { nombre: "Bianka", emoji: "🐱" },
 };
 
-let yo = localStorage.getItem(YO_KEY);
+let yo = getYo();
 let viewing = yo || "bianka";
 let notas = loadNotas();
 let saveTimer = null;
@@ -65,7 +68,7 @@ function renderYoPicker() {
   container.querySelectorAll(".yo-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       yo = btn.dataset.yo;
-      localStorage.setItem(YO_KEY, yo);
+      setYo(yo);
       viewing = yo;
       renderNotas();
       pullFromCloud();
@@ -123,7 +126,7 @@ function renderNotas() {
 
   document.getElementById("yo-change")?.addEventListener("click", () => {
     if (own) saveFromFields();
-    localStorage.removeItem(YO_KEY);
+    clearYo();
     yo = null;
     renderYoPicker();
   });
@@ -256,7 +259,21 @@ async function pullFromCloud() {
 }
 
 export function renderNosotros(container) {
-  container.innerHTML = "";
+  yo = getYo();
+  if (yo) viewing = yo;
+  const days = getDaysTogether();
+  container.innerHTML = `
+    <div class="perfil-hero anim-in">
+      <div class="perfil-photos">
+        <img src="${FOTO_BIANKA}" alt="Bianka" />
+        <img src="${FOTO_DIEGO}" alt="Diego" />
+      </div>
+      <h2>Unidos</h2>
+      <p>Juntos desde el 16 de mayo de 2026 · ${days} días</p>
+      <p class="perfil-url">diegovh03.github.io/Unidos</p>
+      <p class="perfil-install">Safari → Compartir → Agregar a pantalla de inicio</p>
+    </div>
+  `;
   const wrap = document.createElement("div");
   wrap.id = "nosotros-content";
   container.appendChild(wrap);

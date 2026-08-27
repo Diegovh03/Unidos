@@ -2,6 +2,7 @@ import { cloudGet, cloudSet, escapeHtml, getYo, uid } from "../cloud.js";
 import { getNextEvent, formatDate, parseDate } from "../plan.js";
 import { pop, staggerIn } from "../motion.js";
 import { googleCalUrl, downloadRutinaIcs } from "../gcal.js";
+import { getUserDates, addUserDate, removeUserDate, toggleUserDateDone } from "../user-dates.js";
 
 const QUIEN = {
   ambos: { label: "Los dos", emoji: "💕" },

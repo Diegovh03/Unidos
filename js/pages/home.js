@@ -18,6 +18,7 @@ import { clocksHtml, startClocks, stopClocks } from "../clocks.js";
 import { downloadPlanJpg } from "../plan-export.js";
 import { scheduleHtml, bindSchedule } from "../schedule.js";
 import { datesOn } from "../user-dates.js";
+import { installBannerHtml, bindInstallBanner } from "../onboarding.js";
 
 export { stopClocks as stopHomeTimers };
 
@@ -45,6 +46,9 @@ export function renderHeader(page) {
     <button type="button" class="header-action" id="header-notify" aria-label="Notificaciones">🔔</button>
   `;
   document.getElementById("header-back")?.addEventListener("click", () => {
+    window.dispatchEvent(new CustomEvent("navigate", { detail: "home" }));
+  });
+  document.getElementById("header-notify")?.addEventListener("click", () => {
     window.dispatchEvent(new CustomEvent("navigate", { detail: "home" }));
   });
 }
@@ -92,6 +96,8 @@ export async function renderHome(container) {
         <button type="button" class="icon-btn ripple-btn" id="notify-btn-home" title="Notificaciones">🔔</button>
       </div>
     </div>
+
+    ${installBannerHtml()}
 
     ${clocksHtml()}
 
@@ -212,6 +218,7 @@ export async function renderHome(container) {
   bindHomeEvents(container);
   startClocks(container);
   bindSchedule(container);
+  bindInstallBanner();
   bindCoupleRibbon(container, (ciudad) => {
     sessionStorage.setItem("open-ciudad", ciudad);
     window.dispatchEvent(new CustomEvent("navigate", { detail: "mapa" }));
