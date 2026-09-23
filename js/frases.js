@@ -6,7 +6,7 @@ export async function initFrases() {
   return frasesDelDia;
 }
 
-const ANIVERSARIO = new Date(2026, 4, 16, 3, 0, 0, 0);
+const ANIVERSARIO = new Date(2026, 5, 24);
 
 export function getFraseDelDia(fromDate = new Date(), nextEvent = null) {
   if (!frasesDelDia.length) {

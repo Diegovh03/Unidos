@@ -16,8 +16,7 @@ Los datos (fotos, diario, notas) se quedan en el celular. No se envían a intern
 
 | Fecha | Qué pasa |
 |-------|----------|
-| 16 may 2026 | Juntos desde (03:00) |
+| 24 jun 2026 | Juntos desde |
 | 30 ago 2026 | Diego → Gotemburgo |
 | 30 oct 2026 | Bianka → España |
-| 9–17 nov 2026 | Juntos en España |
-| 15 jun – 15 ago 2027 | Diego en Perú |
+| 13–22 nov 2026 | Juntos en España |

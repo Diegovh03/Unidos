@@ -7,24 +7,24 @@ import {
   getImportantMark,
   shouldMarkX,
   getDiasParaVernos,
-  getDiasDiegoPeru,
 } from "../plan.js";
 import { getFraseDelDia } from "../frases.js";
 import { renderCoupleRibbon, bindCoupleRibbon } from "../couple-photos.js";
 import { animateNumber, staggerIn, bindRipples } from "../motion.js";
-import { buildUnifiedFeed, feedTypeLabel, formatFeedDate, PERSONAS } from "../timeline.js";
-import { escapeHtml } from "../cloud.js";
+import { buildUnifiedFeed } from "../timeline.js";
 import { clocksHtml, startClocks, stopClocks } from "../clocks.js";
 import { downloadPlanJpg } from "../plan-export.js";
-import { scheduleHtml, bindSchedule } from "../schedule.js";
 import { datesOn } from "../user-dates.js";
 import { installBannerHtml, bindInstallBanner } from "../onboarding.js";
+import { PETS, petsNeedCare } from "../pets.js";
+import { escapeHtml } from "../cloud.js";
 
 export { stopClocks as stopHomeTimers };
 
 const WEEKDAYS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
 let viewDate = new Date();
 let highlightRange = null;
+let selectedCalendarDate = null;
 
 export function renderHeader(page) {
   const header = document.getElementById("top-header");
@@ -39,6 +39,7 @@ export function renderHeader(page) {
     planes: "Planes",
     mapa: "Mapa",
     nosotros: "Perfil",
+    mascotas: "Mascotas",
   };
   header.innerHTML = `
     <button type="button" class="header-back" id="header-back" aria-label="Volver">‹</button>
@@ -63,20 +64,23 @@ function verseCopy(verse) {
   };
 }
 
-function peruCopy(peru) {
-  if (peru.estado === "en-peru") {
-    return {
-      num: peru.restantes,
-      unit: peru.restantes === 1 ? "día" : "días",
-      text: "Diego está en Perú",
-    };
-  }
-  if (peru.estado === "pasado") return { num: "✓", unit: "", text: "Diego ya volvió a Perú" };
-  return {
-    num: peru.dias,
-    unit: peru.dias === 1 ? "día" : "días",
-    text: `Faltan ${peru.dias} ${peru.dias === 1 ? "día" : "días"} para que Diego vuelva a Perú`,
-  };
+function petsHomeHtml() {
+  const need = petsNeedCare();
+  const note = need.length
+    ? `${need.map((p) => p.nombre).join(", ")} ${need.length === 1 ? "quiere" : "quieren"} mimo ♡`
+    : "Ringo, Totti y Nala están bien ♡";
+  return `
+    <button type="button" class="pets-home anim-in ripple-btn" data-goto="mascotas">
+      <div class="pets-home-faces">
+        ${PETS.map((p) => `<img src="${p.foto}" alt="${p.nombre}" />`).join("")}
+      </div>
+      <div class="pets-home-copy">
+        <strong>Nuestros peludos</strong>
+        <span>${note}</span>
+      </div>
+      <span class="pets-home-go">🐾 Cuidar ›</span>
+    </button>
+  `;
 }
 
 export async function renderHome(container) {
@@ -84,12 +88,12 @@ export async function renderHome(container) {
   const days = getDaysTogether(new Date());
   const ribbonHtml = await renderCoupleRibbon({ showDays: true, days });
   const verse = verseCopy(getDiasParaVernos());
-  const peru = peruCopy(getDiasDiegoPeru());
 
   container.innerHTML = `
     <div class="home-greeting anim-in">
       <div>
         <h2 class="greeting-text">Hola, amor <span class="pink heart-wiggle">💕</span></h2>
+        <p class="greeting-sub">Qué bonito tenerte aquí ♡</p>
       </div>
       <div class="greeting-actions">
         <button type="button" class="icon-btn ripple-btn" data-goto="nosotros" title="Perfil">🎁</button>
@@ -99,14 +103,19 @@ export async function renderHome(container) {
 
     ${installBannerHtml()}
 
+    ${petsHomeHtml()}
+
     ${clocksHtml()}
 
-    ${scheduleHtml()}
-
-    <div id="home-ribbon-wrap">${ribbonHtml}</div>
+    <section class="couple-feature card-dark anim-in">
+      <p class="couple-feature-kicker">Desde que somos nosotros ♡</p>
+      <div id="home-ribbon-wrap">${ribbonHtml}</div>
+    </section>
 
     <div class="hero-quote anim-in shimmer-card">
       <div class="hero-quote-bg hero-bg-shift"></div>
+      <span class="quote-moon" aria-hidden="true">🌙</span>
+      <span class="quote-hearts" aria-hidden="true">♡♡</span>
       <div class="hero-quote-content">
         <p class="quote-reveal">"${frase.texto}"</p>
         <span>— ${frase.autor}</span>
@@ -115,10 +124,15 @@ export async function renderHome(container) {
 
     <section class="home-recent card-dark anim-in" id="home-recent">
       <div class="home-recent-head">
-        <h3>Nuestro espacio</h3>
+        <div class="home-recent-head-left">
+          <span class="home-recent-icon" aria-hidden="true">📖</span>
+          <div>
+            <h3>Nuestro espacio</h3>
+            <p class="home-recent-sub">Nuestro collage se sigue armando…</p>
+          </div>
+        </div>
         <button type="button" class="home-recent-link" data-goto="recuerdos">Ver todo ›</button>
       </div>
-      <p class="home-recent-sub">Fotos, videos y pensamientos — guardados lejos del chat</p>
       <div id="home-recent-feed"><p class="loading">Cargando…</p></div>
     </section>
 
@@ -139,12 +153,20 @@ export async function renderHome(container) {
         <span class="grid-icon icon-bounce">📔</span>
         <span>Diario</span>
       </button>
+      <button type="button" class="grid-btn anim-in ripple-btn" data-goto="mascotas">
+        <span class="grid-icon icon-bounce">🐾</span>
+        <span>Mascotas</span>
+      </button>
+      <button type="button" class="grid-btn anim-in ripple-btn" data-goto="nosotros">
+        <span class="grid-icon icon-bounce">🎁</span>
+        <span>Perfil</span>
+      </button>
     </div>
 
     <details class="calendar-collapse card-dark anim-in interactive-card" open>
       <summary>📅 Calendario</summary>
 
-      <p class="calendar-intro">Solo se colorean las fechas importantes. Después del 30 de agosto, cada día que pase se marca solo con una X.</p>
+      <p class="calendar-intro">Explora el mes, toca una fecha y descubre qué momento guarda. Los próximos planes te llevan directo a su día.</p>
 
       <ul class="calendar-events-list" id="calendar-events-list">
         ${getFechasImportantes().map((f) => `
@@ -183,7 +205,6 @@ export async function renderHome(container) {
         <span class="legend-item"><i class="legend-dot salida"></i> Diego → Gotemburgo</span>
         <span class="legend-item"><i class="legend-dot viaje-ella"></i> Bianka → España</span>
         <span class="legend-item"><i class="legend-dot verse"></i> Nos vemos</span>
-        <span class="legend-item"><i class="legend-dot peru"></i> Diego en Perú</span>
         <span class="legend-item"><i class="legend-dot marked-x"></i> Día en distancia</span>
         <span class="legend-item"><i class="legend-dot date"></i> Date / plan</span>
       </div>
@@ -195,12 +216,6 @@ export async function renderHome(container) {
         <p class="hito-count-num" id="verse-num">${typeof verse.num === "number" ? 0 : verse.num}</p>
         <p class="hito-count-unit">${verse.unit}</p>
         <p class="hito-count-text">${verse.text}</p>
-      </article>
-      <article class="hito-count card-dark">
-        <p class="hito-count-label">Diego en Perú</p>
-        <p class="hito-count-num" id="peru-num">${typeof peru.num === "number" ? 0 : peru.num}</p>
-        <p class="hito-count-unit">${peru.unit}</p>
-        <p class="hito-count-text">${peru.text}</p>
       </article>
     </section>
 
@@ -217,7 +232,6 @@ export async function renderHome(container) {
   showTodayDetail();
   bindHomeEvents(container);
   startClocks(container);
-  bindSchedule(container);
   bindInstallBanner();
   bindCoupleRibbon(container, (ciudad) => {
     sessionStorage.setItem("open-ciudad", ciudad);
@@ -228,9 +242,6 @@ export async function renderHome(container) {
   if (typeof verse.num === "number") {
     animateNumber(document.getElementById("verse-num"), verse.num, { duration: 1100 });
   }
-  if (typeof peru.num === "number") {
-    animateNumber(document.getElementById("peru-num"), peru.num, { duration: 1100 });
-  }
   staggerIn(container);
   bindRipples(container);
   await renderHomeRecent();
@@ -240,25 +251,16 @@ async function renderHomeRecent() {
   const el = document.getElementById("home-recent-feed");
   if (!el) return;
 
-  const items = (await buildUnifiedFeed("todo")).slice(0, 4);
-  if (!items.length) {
-    el.innerHTML = `<p class="empty-state small">Pulsa + en Espacio para guardar la primera foto, video o pensamiento</p>`;
-    return;
-  }
-
-  el.innerHTML = items.map((item) => `
-    <button type="button" class="home-recent-item ${item.type}" data-goto="${item.source === "diario" ? "diario" : "recuerdos"}">
-      <span class="home-recent-type">${feedTypeLabel(item.type)}</span>
-      <span class="home-recent-text">${item.text ? escapeHtml(item.text.slice(0, 80)) + (item.text.length > 80 ? "…" : "") : escapeHtml(item.title || "Sin título")}</span>
-      <span class="home-recent-meta">${PERSONAS[item.by]?.emoji || ""} ${formatFeedDate(item.date)}</span>
-    </button>
-  `).join("");
-
-  el.querySelectorAll(".home-recent-item").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("navigate", { detail: btn.dataset.goto }));
-    });
-  });
+  const fotos = await buildUnifiedFeed("fotos");
+  el.innerHTML = `
+    <div class="home-space-summary">
+      <span class="home-space-summary-mark" aria-hidden="true">♡</span>
+      <div>
+        <strong>${fotos.length} ${fotos.length === 1 ? "recuerdo guardado" : "recuerdos guardados"}</strong>
+        <p>${fotos.length ? "El collage y las fotos por mes están juntos en Espacio." : "Sube la primera foto y empieza a crear su álbum juntos."}</p>
+      </div>
+    </div>
+  `;
 }
 
 function bindHomeEvents(container) {
@@ -296,12 +298,14 @@ function bindHomeEvents(container) {
       if (raw.length === 5) {
         const y = new Date().getFullYear();
         viewDate = parseDate(`${y}-${raw}`);
-        highlightRange = null;
+        highlightRange = end ? { inicio: raw, fin: end } : null;
       } else {
         viewDate = parseDate(raw);
-        highlightRange = null;
+        highlightRange = end ? { inicio: raw, fin: end } : null;
       }
+      selectedCalendarDate = raw.length === 5 ? `${viewDate.getFullYear()}-${raw}` : raw;
       renderCalendar();
+      showCalendarDetail(selectedCalendarDate);
       document.querySelector(".calendar-collapse")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
@@ -325,16 +329,28 @@ function getDayClasses(dateStr, todayStr) {
 
 function showTodayDetail() {
   const todayStr = dateKey(new Date());
-  const info = getDayInfo(todayStr);
+  showCalendarDetail(todayStr, true);
+}
+
+function showCalendarDetail(dateStr, isToday = false) {
+  selectedCalendarDate = dateStr;
+  const info = getDayInfo(dateStr);
   const detail = document.getElementById("calendar-day-detail");
-  const { icon, text } = formatDayDetail(todayStr, info);
+  const { icon, text } = formatDayDetail(dateStr, info);
   if (detail) {
-    detail.innerHTML = `<span class="cal-detail-icon">${icon}</span><p><strong>Hoy:</strong> ${text}</p>`;
+    const rawTitle = isToday ? "Hoy" : new Date(`${dateStr}T12:00:00`).toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
+    const title = rawTitle.charAt(0).toLocaleUpperCase("es-PE") + rawTitle.slice(1);
+    const body = text.replace(/^.*?:\s*/, "");
+    detail.innerHTML = `<span class="cal-detail-icon" aria-hidden="true">${icon}</span><div class="cal-detail-copy"><span class="cal-detail-kicker">${isToday ? "TU DÍA" : "DÍA SELECCIONADO"}</span><strong class="cal-detail-title">${escapeHtml(title)}</strong><p>${escapeHtml(body || "Un día más para guardar en su historia.")}</p></div>`;
   }
-  const cell = document.querySelector(`.calendar-day[data-date="${todayStr}"]`);
+  document.querySelectorAll(".calendar-day.selected").forEach((el) => {
+    el.classList.remove("selected");
+    el.setAttribute("aria-label", el.getAttribute("aria-label").replace(", seleccionado", ""));
+  });
+  const cell = document.querySelector(`.calendar-day[data-date="${dateStr}"]`);
   if (cell) {
-    document.querySelectorAll(".calendar-day.selected").forEach((el) => el.classList.remove("selected"));
     cell.classList.add("selected");
+    cell.setAttribute("aria-label", `${cell.getAttribute("aria-label")}, seleccionado`);
   }
 }
 
@@ -355,17 +371,8 @@ function formatDayDetail(dateStr, info) {
 }
 
 function bindCalendarDayClicks() {
-  const detail = document.getElementById("calendar-day-detail");
   document.querySelectorAll(".calendar-day[data-date]").forEach((cell) => {
-    cell.addEventListener("click", () => {
-      document.querySelectorAll(".calendar-day.selected").forEach((el) => el.classList.remove("selected"));
-      cell.classList.add("selected");
-      const info = getDayInfo(cell.dataset.date);
-      const { icon, text } = formatDayDetail(cell.dataset.date, info);
-      if (detail) {
-        detail.innerHTML = `<span class="cal-detail-icon">${icon}</span><p>${text}</p>`;
-      }
-    });
+    cell.addEventListener("click", () => showCalendarDetail(cell.dataset.date, cell.dataset.date === dateKey(new Date())));
   });
 }
 
@@ -402,7 +409,10 @@ function renderCalendar() {
       : user.length
         ? `<span class="day-icon" aria-hidden="true">💕</span>`
         : "";
-    html += `<div class="${classes.join(" ")}" data-date="${dateStr}" role="button" tabindex="0">${xHtml}${iconHtml}<span class="day-num">${day}</span></div>`;
+    const selected = dateStr === selectedCalendarDate;
+    const eventLabel = mark?.label || user.map((event) => event.titulo).join(", ");
+    const ariaLabel = `${new Date(`${dateStr}T12:00:00`).toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" })}${eventLabel ? `: ${eventLabel}` : ""}${dateStr === todayStr ? ", hoy" : ""}`;
+    html += `<button type="button" class="${classes.join(" ")}${selected ? " selected" : ""}" data-date="${dateStr}" aria-label="${escapeHtml(`${ariaLabel}${selected ? ", seleccionado" : ""}`)}"${dateStr === todayStr ? ' aria-current="date"' : ""}>${xHtml}${iconHtml}<span class="day-num">${day}</span></button>`;
   }
   document.getElementById("calendar-days").innerHTML = html;
   bindCalendarDayClicks();

@@ -4,8 +4,8 @@
   "description": "Fotos, videos, pensamientos y plan — todo junto para la pareja",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0F0F1B",
-  "theme_color": "#0F0F1B",
+  "background_color": "#FBF3EC",
+  "theme_color": "#FBF3EC",
   "orientation": "portrait",
   "lang": "es",
   "icons": [

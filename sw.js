@@ -1,4 +1,4 @@
-const ANIVERSARIO = new Date(2026, 4, 16, 3, 0, 0, 0);
+const ANIVERSARIO = new Date(2026, 5, 24);
 const NOTIFY_HOUR_LIMA = 8;
 const FRASES_URL = "./data/frases.json";
 
@@ -78,6 +78,7 @@ async function checkAndNotify() {
     }
   }
 
+  await checkPetAlerts().catch(() => {});
   scheduleNextCheck();
 }
 
@@ -97,9 +98,81 @@ function setLastSentDate(dateStr) {
   );
 }
 
+const PET_DECAY = { hunger: 8, hygiene: 5, happy: 6 };
+const PET_RED = 30;
+
+async function readPetSnapshot() {
+  try {
+    const cache = await caches.open("nuestro-plan-meta");
+    const res = await cache.match("pets-snapshot");
+    if (!res) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function writePetSnapshot(data) {
+  try {
+    const cache = await caches.open("nuestro-plan-meta");
+    await cache.put("pets-snapshot", new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" },
+    }));
+  } catch { /* ignore */ }
+}
+
+function clampPet(n) {
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+async function checkPetAlerts() {
+  const snap = await readPetSnapshot();
+  if (!snap?.pets) return;
+  const now = Date.now();
+  const hours = Math.max(0, (now - (snap.updatedAt || now)) / 3600000);
+  const today = todayKeyLima();
+  const alerts = { ...(snap.alerts || {}) };
+  let dirty = false;
+
+  for (const [id, pet] of Object.entries(snap.pets)) {
+    pet.hunger = clampPet(pet.hunger - hours * PET_DECAY.hunger);
+    pet.hygiene = clampPet(pet.hygiene - hours * PET_DECAY.hygiene);
+    pet.happy = clampPet(pet.happy - hours * PET_DECAY.happy);
+    const checks = [
+      [pet.hunger < PET_RED, `${id}-hunger`, `${pet.emoji || "🐾"} ${pet.nombre} tiene hambre`, "Su barra está en rojo. Dale de comer en Unidos."],
+      [pet.hygiene < PET_RED, `${id}-dirty`, `${pet.emoji || "🐾"} ${pet.nombre} está sucio`, "Su limpieza está en rojo. Toca Bañar."],
+      [pet.happy < PET_RED, `${id}-sad`, `${pet.emoji || "🐾"} ${pet.nombre} está triste`, "Su ánimo está en rojo. Juega un rato."],
+    ];
+    for (const [isRed, tag, title, body] of checks) {
+      if (!isRed) {
+        if (alerts[tag]) {
+          delete alerts[tag];
+          dirty = true;
+        }
+        continue;
+      }
+      if (alerts[tag] === today) continue;
+      await self.registration.showNotification(title, {
+        body,
+        icon: pet.foto ? `./${pet.foto}` : "./icons/icon-192.png",
+        badge: "./icons/icon-192.png",
+        tag,
+        renotify: true,
+        data: { page: "mascotas" },
+      });
+      alerts[tag] = today;
+      dirty = true;
+    }
+  }
+
+  snap.updatedAt = now;
+  snap.alerts = alerts;
+  if (hours > 0 || dirty) await writePetSnapshot(snap);
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open("unidos-v4").then((cache) =>
+    caches.open("unidos-v8").then((cache) =>
       cache.addAll([
         "./",
         "./index.html",
@@ -119,9 +192,12 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     Promise.all([
       self.clients.claim(),
-      caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== "unidos-v4" && k !== "nuestro-plan-meta").map((k) => caches.delete(k)))),
+      caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== "unidos-v8" && k !== "nuestro-plan-meta").map((k) => caches.delete(k)))),
       loadFrases(),
-    ]).then(() => scheduleNextCheck())
+    ]).then(() => {
+      checkPetAlerts();
+      scheduleNextCheck();
+    })
   );
 });
 
@@ -132,7 +208,7 @@ self.addEventListener("fetch", (event) => {
       .then((res) => {
         const copy = res.clone();
         if (res.ok && new URL(event.request.url).origin === self.location.origin) {
-          caches.open("unidos-v4").then((c) => c.put(event.request, copy)).catch(() => {});
+          caches.open("unidos-v8").then((c) => c.put(event.request, copy)).catch(() => {});
         }
         return res;
       })
@@ -144,14 +220,22 @@ self.addEventListener("message", (event) => {
   if (event.data?.type === "SCHEDULE_NOTIFICATIONS") {
     scheduleNextCheck();
   }
+  if (event.data?.type === "PETS_SNAPSHOT" && event.data.snapshot) {
+    event.waitUntil(writePetSnapshot(event.data.snapshot));
+  }
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  const goPets = event.notification.data?.page === "mascotas" || /-(hunger|dirty|sad)$/.test(event.notification.tag || "");
+  const url = goPets ? "./?pets=1" : "./index.html";
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-      if (clients.length > 0) return clients[0].focus();
-      return self.clients.openWindow("./index.html");
+      if (clients.length > 0) {
+        clients[0].postMessage({ type: "OPEN_PAGE", page: goPets ? "mascotas" : "home" });
+        return clients[0].focus();
+      }
+      return self.clients.openWindow(url);
     })
   );
 });

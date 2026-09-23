@@ -74,8 +74,9 @@ export function installBannerHtml() {
     : `Para usarla como app: en el menú del navegador elige <strong>Instalar app</strong> o <strong>Agregar a la pantalla de inicio</strong>.`;
   return `
     <div class="install-banner anim-in" id="install-banner">
+      <span class="install-banner-icon" aria-hidden="true">📱</span>
       <p>${copy}</p>
-      <button type="button" class="install-dismiss" id="install-dismiss">Entendido</button>
+      <button type="button" class="install-dismiss" id="install-dismiss" aria-label="Cerrar">×</button>
     </div>`;
 }
 

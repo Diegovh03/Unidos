@@ -46,13 +46,60 @@ export function ripple(e, el) {
   rippleEl.addEventListener("animationend", () => rippleEl.remove());
 }
 
+/** Elementos que llevan foto: el destello se ve mal encima, usan zoom en su lugar (ver CSS). */
+const NO_RIPPLE = ".mosaic-item, .recuerdos-item, .collage-item, .collage-note, .mini-collage-item";
+
+const RIPPLE_TARGETS = [
+  ".ripple-btn", ".grid-btn", ".icon-btn", ".fab", ".nav-item", ".yo-btn",
+  ".btn-pink", ".btn", ".btn-outline", ".plan-item", ".espacio-tab",
+  ".recuerdos-cat-btn", ".momento-destino-btn", ".momento-categoria-btn",
+  ".espacio-export-btn", ".espacio-load-more", ".home-recent-link",
+  ".pets-home", ".momento-slot-edit", ".modal-close", ".install-dismiss",
+  ".calendar-event-btn", ".calendar-today-btn", ".header-back", ".header-action",
+].join(", ");
+
+/** Vibración cortita al tocar (Android; en iPhone simplemente no hace nada). */
+function haptic(ms = 8) {
+  try {
+    navigator.vibrate?.(ms);
+  } catch { /* ignorar */ }
+}
+
 export function bindRipples(root = document) {
-  root.querySelectorAll(".ripple-btn, .grid-btn, .icon-btn, .fab, .nav-item, .yo-btn, .btn-pink, .btn, .plan-item").forEach((btn) => {
+  root.querySelectorAll(RIPPLE_TARGETS).forEach((btn) => {
     if (btn.dataset.rippleBound) return;
+    if (btn.matches(NO_RIPPLE)) return;
     btn.dataset.rippleBound = "1";
     btn.classList.add("ripple-btn");
-    btn.addEventListener("click", (e) => ripple(e, btn));
+    btn.addEventListener("click", (e) => {
+      ripple(e, btn);
+      haptic();
+    });
   });
+
+  root.querySelectorAll(NO_RIPPLE).forEach((el) => {
+    if (el.dataset.hapticBound) return;
+    el.dataset.hapticBound = "1";
+    el.addEventListener("click", () => haptic());
+  });
+}
+
+/** Corazoncitos que salen volando desde un punto (botón central). */
+export function heartBurst(x, y, count = 5) {
+  for (let i = 0; i < count; i++) {
+    const heart = document.createElement("span");
+    heart.className = "heart-burst";
+    heart.textContent = i % 2 === 0 ? "♥" : "♡";
+    heart.style.left = `${x}px`;
+    heart.style.top = `${y}px`;
+    heart.style.color = i % 2 === 0 ? "#d2453f" : "#d98c9a";
+    heart.style.setProperty("--dx", `${(i - (count - 1) / 2) * 20}px`);
+    heart.style.setProperty("--dy", `${-40 - Math.random() * 30}px`);
+    heart.style.setProperty("--rot", `${(Math.random() - 0.5) * 60}deg`);
+    heart.style.animationDelay = `${i * 0.04}s`;
+    document.body.appendChild(heart);
+    heart.addEventListener("animationend", () => heart.remove());
+  }
 }
 
 export function pop(el) {

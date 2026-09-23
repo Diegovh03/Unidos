@@ -73,20 +73,26 @@ function tickOne(root, timeZone) {
   setHand(root.querySelector(".hand.minute"), minuteDeg);
   setHand(root.querySelector(".hand.second"), secondDeg);
 
-  const digital = root.querySelector(".clock-digital");
+  const digital = root.querySelector(".clock-digital-time");
   if (digital) {
     const hh = String(p.hour).padStart(2, "0");
     const mm = String(p.minute).padStart(2, "0");
     digital.textContent = `${hh}:${mm}`;
   }
+
+  const dayNight = root.querySelector(".clock-daynight");
+  if (dayNight) {
+    dayNight.textContent = p.hour >= 6 && p.hour < 19 ? "☀️" : "🌙";
+  }
 }
 
 export function clocksHtml() {
   return `
-    <section class="clocks-panel anim-in" aria-label="Hora en Perú y Suecia">
+    <section class="clocks-panel card-dark anim-in" aria-label="Hora en Perú y Suecia">
+      <p class="clocks-kicker">Nuestro horario ♡</p>
       <div class="clocks-row">
         <article class="clock-card" data-tz="${TZ_PERU}">
-          <p class="clock-city">Perú</p>
+          <p class="clock-city">Perú <span aria-hidden="true">🇵🇪</span></p>
           <p class="clock-place">Lima</p>
           <div class="analog-clock" aria-hidden="true">
             <div class="clock-face">
@@ -97,10 +103,15 @@ export function clocksHtml() {
               <div class="clock-center"></div>
             </div>
           </div>
-          <p class="clock-digital">--:--</p>
+          <p class="clock-digital"><span class="clock-digital-time">--:--</span><span class="clock-daynight" aria-hidden="true"></span></p>
         </article>
+        <div class="clocks-connector" aria-hidden="true">
+          <span class="clocks-connector-plane">✈️</span>
+          <span class="clocks-connector-line"></span>
+          <span class="clocks-connector-heart">♡</span>
+        </div>
         <article class="clock-card" data-tz="${TZ_SUECIA}">
-          <p class="clock-city">Suecia</p>
+          <p class="clock-city">Suecia <span aria-hidden="true">🇸🇪</span></p>
           <p class="clock-place">Gotemburgo</p>
           <div class="analog-clock" aria-hidden="true">
             <div class="clock-face">
@@ -111,7 +122,7 @@ export function clocksHtml() {
               <div class="clock-center"></div>
             </div>
           </div>
-          <p class="clock-digital">--:--</p>
+          <p class="clock-digital"><span class="clock-digital-time">--:--</span><span class="clock-daynight" aria-hidden="true"></span></p>
         </article>
       </div>
       <p class="clock-diff" id="clock-diff"></p>
@@ -128,7 +139,7 @@ export function tickClocks(root = document) {
   const diffEl = root.querySelector("#clock-diff") || document.getElementById("clock-diff");
   if (diffEl) {
     const h = hoursBetweenZones();
-    diffEl.textContent = `Ahora hay ${h} hora${h === 1 ? "" : "s"} de diferencia`;
+    diffEl.textContent = `⇄ Ahora hay ${h} hora${h === 1 ? "" : "s"} de diferencia`;
   }
 }
 

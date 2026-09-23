@@ -1,5 +1,4 @@
-import { cloudGet, formatDateShort, formatText, PERSONAS, loadPhoto } from "./cloud.js";
-import { loadVideo } from "./media.js";
+import { cloudGet, formatDateShort, formatText, PERSONAS } from "./cloud.js";
 
 async function loadDiarioEntries() {
   const remote = await cloudGet("diario");
@@ -12,13 +11,12 @@ async function loadDiarioEntries() {
 }
 
 /**
- * Feed unificado: pensamientos (diario) + fotos + videos (recuerdos)
+ * Feed unificado: pensamientos (diario) + fotos de Nuestro Espacio
  */
 export async function buildUnifiedFeed(filter = "todo") {
-  const { loadRecuerdos, getRecuerdosSnapshot } = await import("./pages/recuerdos.js");
-  await loadRecuerdos();
+  const { getMomentosTodos } = await import("./supabase-diario.js");
   const diario = await loadDiarioEntries();
-  const fotos = getRecuerdosSnapshot();
+  const fotos = await getMomentosTodos(500);
 
   const items = [];
 
@@ -30,54 +28,33 @@ export async function buildUnifiedFeed(filter = "todo") {
       date: e.date,
       by: e.by,
       text: e.text || "",
-      photoId: e.photoId || null,
-      videoId: e.videoId || null,
-      title: null,
-      albumId: null,
+      photoUrl: null,
     });
   }
 
   for (const f of fotos) {
-    const isVideo = f.mediaType === "video";
     items.push({
-      id: f.id,
+      id: `${f.date}-${f.persona}`,
       source: "recuerdos",
-      type: isVideo ? "video" : "foto",
+      type: "foto",
       date: f.date,
-      by: f.by,
-      text: null,
-      photoId: isVideo ? null : f.id,
-      videoId: isVideo ? f.id : null,
-      title: f.title,
-      albumId: f.albumId,
+      by: f.persona,
+      text: f.caption || "",
+      photoUrl: f.foto_url,
     });
   }
 
   items.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (filter === "fotos") return items.filter((i) => i.type === "foto");
-  if (filter === "videos") return items.filter((i) => i.type === "video");
   if (filter === "pensamientos") return items.filter((i) => i.type === "pensamiento");
   return items;
-}
-
-export async function hydrateFeedMedia(item) {
-  if (item.videoId) {
-    const src = await loadVideo(item.videoId);
-    return { ...item, mediaSrc: src, mediaKind: "video" };
-  }
-  if (item.photoId) {
-    const src = await loadPhoto(item.photoId);
-    return { ...item, mediaSrc: src, mediaKind: "photo" };
-  }
-  return { ...item, mediaSrc: null, mediaKind: null };
 }
 
 export function feedTypeLabel(type) {
   const map = {
     pensamiento: "💭 Pensamiento",
     foto: "📷 Foto",
-    video: "🎬 Video",
   };
   return map[type] || "";
 }

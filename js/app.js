@@ -5,10 +5,12 @@ import { renderRecuerdos, startRecuerdosPoll } from "./pages/recuerdos.js";
 import { renderDiario, startDiarioPoll } from "./pages/diario.js";
 import { renderPlanes } from "./pages/planes.js";
 import { renderNosotros, startNosotrosPoll, stopNosotrosPoll } from "./nosotros.js";
+import { renderMascotas, stopMascotasTick } from "./pages/mascotas.js";
 import { getFraseDelDia } from "./frases.js";
 import { getNextEvent } from "./plan.js";
-import { pageEnter, bindRipples } from "./motion.js";
+import { pageEnter, bindRipples, heartBurst } from "./motion.js";
 import { needsOnboarding, onboardingHtml, bindOnboarding } from "./onboarding.js";
+import { watchPetsAlerts } from "./pets.js";
 
 let pollTimer = null;
 
@@ -26,6 +28,7 @@ async function navigate(page) {
   }
   stopNosotrosPoll();
   stopHomeTimers();
+  stopMascotasTick();
 
   const el = container();
   el.classList.add("page-exit");
@@ -56,6 +59,9 @@ async function navigate(page) {
       renderNosotros(el);
       startNosotrosPoll();
       break;
+    case "mascotas":
+      renderMascotas(el);
+      break;
     default:
       await renderHome(el);
   }
@@ -63,6 +69,7 @@ async function navigate(page) {
   pageEnter(el);
   bindRipples(el);
   window.scrollTo(0, 0);
+  watchPetsAlerts();
 }
 
 async function setupNotifications() {
@@ -75,7 +82,7 @@ async function setupNotifications() {
   if (Notification.permission === "granted") {
     if (status) {
       status.hidden = false;
-      status.textContent = "Notificaciones activas · 8 AM Lima";
+      status.textContent = "Notificaciones activas · 8 AM Lima + mascotas";
     }
   }
 
@@ -91,8 +98,9 @@ async function setupNotifications() {
     });
     if (status) {
       status.hidden = false;
-      status.textContent = "Notificaciones activas · 8 AM Lima";
+      status.textContent = "Notificaciones activas · 8 AM Lima + mascotas";
     }
+    watchPetsAlerts();
   };
 }
 
@@ -102,7 +110,17 @@ document.querySelectorAll(".nav-item").forEach((btn) => {
 
 bindRipples(document.querySelector(".bottom-nav"));
 
+document.querySelector(".nav-center")?.addEventListener("click", (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  heartBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+});
+
 window.addEventListener("navigate", (e) => navigate(e.detail));
+
+navigator.serviceWorker?.addEventListener("message", (event) => {
+  if (event.data?.page) navigate(event.data.page);
+  if (event.data?.type === "OPEN_PAGE" && event.data.page) navigate(event.data.page);
+});
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
@@ -110,7 +128,8 @@ if ("serviceWorker" in navigator) {
 
 initFrases().then(() => {
   ensureCiudadViewer();
-  const start = () => navigate("home");
+  const openPets = new URLSearchParams(location.search).has("pets");
+  const start = () => navigate(openPets ? "mascotas" : "home");
   if (needsOnboarding()) {
     document.body.insertAdjacentHTML("beforeend", onboardingHtml());
     bindOnboarding(start);

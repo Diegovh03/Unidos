@@ -1,5 +1,5 @@
 export const plan = {
-  aniversario: { inicio: "2026-05-16", hora: "03:00" },
+  aniversario: { inicio: "2026-06-24" },
 
   cumpleanos: [
     { quien: "diego", mesDia: "03-03", nombre: "Diego", icono: "🐶" },
@@ -12,30 +12,27 @@ export const plan = {
   movimientos: [
     { fecha: "2026-08-30", quien: "tu", de: "Perú", a: "Gotemburgo", icono: "✈️" },
     { fecha: "2026-10-30", quien: "ella", de: "Lima", a: "España", icono: "✈️" },
-    { fecha: "2026-11-09", quien: "tu", de: "Gotemburgo", a: "España", icono: "💕" },
+    { fecha: "2026-11-13", quien: "tu", de: "Gotemburgo", a: "España", icono: "💕" },
   ],
 
   /** Días juntos: no se pinta el rango; sí se usa para no poner X */
   encuentros: [
-    { inicio: "2026-05-16", fin: "2026-08-29", lugar: "Perú" },
-    { inicio: "2026-11-09", fin: "2026-11-17", lugar: "España" },
-    { inicio: "2027-06-15", fin: "2027-08-15", lugar: "Perú" },
+    { inicio: "2026-06-24", fin: "2026-08-29", lugar: "Perú" },
+    { inicio: "2026-11-13", fin: "2026-11-22", lugar: "España" },
   ],
 
   hitos: [],
 
   fases: [
     { id: "peru", hasta: "2026-08-29", label: "Juntos en Perú", color: "#DDA0DD" },
-    { id: "suecia", desde: "2026-08-30", hasta: "2026-11-08", label: "A distancia", color: "#E6E6FA" },
-    { id: "espana", desde: "2026-11-09", hasta: "2026-11-17", label: "Juntos en España", color: "#B57EDC" },
-    { id: "distancia1", desde: "2026-11-18", hasta: "2027-06-14", label: "A distancia", color: "#E6E6FA" },
-    { id: "lima", desde: "2027-06-15", hasta: "2027-08-15", label: "Diego en Perú", color: "#DDA0DD" },
+    { id: "suecia", desde: "2026-08-30", hasta: "2026-11-12", label: "A distancia", color: "#E6E6FA" },
+    { id: "espana", desde: "2026-11-13", hasta: "2026-11-22", label: "Juntos en España", color: "#B57EDC" },
+    { id: "distancia1", desde: "2026-11-23", label: "A distancia", color: "#E6E6FA" },
   ],
 };
 
-export const VERSE_ESPAÑA = "2026-11-09";
-export const DIEGO_PERU_INICIO = "2027-06-15";
-export const DIEGO_PERU_FIN = "2027-08-15";
+export const VERSE_ESPAÑA = "2026-11-13";
+export const VERSE_ESPAÑA_FIN = "2026-11-22";
 
 export function parseDate(str) {
   const [y, m, d] = str.split("-").map(Number);
@@ -213,11 +210,8 @@ export function getImportantMark(dateStr) {
   if (dateStr === VERSE_ESPAÑA) {
     return { tipo: "verse", label: "Nos vemos en España", icono: "💕" };
   }
-  if (dateStr === DIEGO_PERU_INICIO) {
-    return { tipo: "peru", label: "Diego vuelve a Perú", icono: "✈️" };
-  }
-  if (dateStr === DIEGO_PERU_FIN) {
-    return { tipo: "peru-fin", label: "Fin de la estadía en Perú", icono: "🌷" };
+  if (dateStr === VERSE_ESPAÑA_FIN) {
+    return { tipo: "verse-fin", label: "Último día juntos en España", icono: "🌷" };
   }
   return null;
 }
@@ -247,26 +241,6 @@ export function getDiasParaVernos(fromDate = new Date()) {
   };
 }
 
-export function getDiasDiegoPeru(fromDate = new Date()) {
-  const today = dateKey(fromDate);
-  if (today >= DIEGO_PERU_INICIO && today <= DIEGO_PERU_FIN) {
-    return {
-      estado: "en-peru",
-      dias: 0,
-      restantes: daysBetween(today, DIEGO_PERU_FIN),
-      fecha: DIEGO_PERU_INICIO,
-    };
-  }
-  if (today > DIEGO_PERU_FIN) {
-    return { estado: "pasado", dias: 0, fecha: DIEGO_PERU_INICIO };
-  }
-  return {
-    estado: "falta",
-    dias: daysBetween(today, DIEGO_PERU_INICIO),
-    fecha: DIEGO_PERU_INICIO,
-  };
-}
-
 /** Lista corta de hitos para el calendario */
 export function getFechasImportantes() {
   return [
@@ -293,18 +267,9 @@ export function getFechasImportantes() {
       tipo: "verse",
       emoji: "💕",
       titulo: "Nos vemos en España",
-      detalle: "Diego llega el 9 de noviembre de 2026",
+      detalle: "Viernes 13 al domingo 22 de noviembre de 2026",
       inicio: VERSE_ESPAÑA,
-      fin: VERSE_ESPAÑA,
-    },
-    {
-      id: "juntos-lima",
-      tipo: "peru",
-      emoji: "✈️",
-      titulo: "Diego vuelve a Perú",
-      detalle: "Quincena de junio hasta quincena de agosto 2027",
-      inicio: DIEGO_PERU_INICIO,
-      fin: DIEGO_PERU_FIN,
+      fin: VERSE_ESPAÑA_FIN,
     },
   ];
 }

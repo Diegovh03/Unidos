@@ -1,5 +1,5 @@
-export const FOTO_BIANKA = "assets/fotos/bianka.png";
-export const FOTO_DIEGO = "assets/fotos/diego.png";
+export const FOTO_BIANKA = "assets/fotos/bianka.jpg";
+export const FOTO_DIEGO = "assets/fotos/diego.jpg";
 
 export const LUGARES = {
   lima: {
